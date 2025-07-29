@@ -1,0 +1,80 @@
+# Relevant Source Code for XGBoost 
+import os 
+import pandas as pd 
+import numpy as np 
+import matplotlib.pyplot as plt 
+from sklearn.model_selection import train_test_split 
+from sklearn.preprocessing import MinMaxScaler 
+from sklearn.metrics import mean_absolute_error, mean_squared_error 
+from xgboost import XGBRegressor 
+# Function to calculate and collect model metrics for a dataset 
+def calculate_model_metrics(y_true, y_pred): 
+mae = mean_absolute_error(y_true, y_pred) 
+mse = mean_squared_error(y_true, y_pred) 
+rmse = np.sqrt(mse) 
+mape = np.mean(np.abs((y_true - y_pred) / y_true)) * 100 
+return {'MAE': mae, 'MSE': mse, 'RMSE': rmse, 'MAPE': mape} 
+# Function to apply XGBoost model to a dataset and display results 
+def apply_xgboost_model(dataset_name, X_train, X_test, y_train, y_test): 
+xgb_model = XGBRegressor() 
+xgb_model.fit(X_train, y_train) 
+xgb_test_predictions = xgb_model.predict(X_test) 
+# Display the test set graph with XGBoost predictions 
+plt.figure(figsize=(10, 6)) 
+plt.plot(y_test.index, X_test['Quantity Ordered'], label='Actual (Test Set)', marker='o', 
+linestyle='--') 
+plt.plot(y_test.index, xgb_test_predictions, label='XGBoost Test Forecast', marker='o', 
+linestyle='--', color='green') 
+plt.xlabel('Weeks') 
+plt.ylabel('Quantity Ordered') 
+plt.title(f'Test Set for {dataset_name}: Actual vs. Predicted Quantity Ordered with 
+XGBoost') 
+plt.legend() 
+plt.show() 
+# Calculate model metrics for the test set 
+model_metrics_xgb_test = calculate_model_metrics(y_test, xgb_test_predictions)
+
+print(f"\nModel Metrics Results for Test Set with XGBoost for {dataset_name}:") 
+print("Mean Absolute Error (MAE):", model_metrics_xgb_test['MAE'])
+
+print("Mean Squared Error (MSE):", model_metrics_xgb_test['MSE'])
+
+print("Root Mean Squared Error (RMSE):", model_metrics_xgb_test['RMSE'])
+
+print("Mean Absolute Percentage Error (MAPE):", model_metrics_xgb_test['MAPE'],
+
+"%")
+
+# Display the test data table with XGBoost predictions
+
+table_data_xgb = pd.DataFrame({
+
+'Order Date': y_test.index,
+
+'Actual': X_test['Quantity Ordered'],
+
+'Forecast_XGBoost': xgb_test_predictions
+
+})
+
+table_data_xgb.reset_index(drop=True, inplace=True)
+
+print(f"\nTest Data Table with XGBoost Predictions for {dataset_name}:")
+
+print(table_data_xgb)
+
+return model_metrics_xgb_test
+
+# Create an empty DataFrame to store model metrics results for all datasets
+
+all_metrics_df_xgb = pd.DataFrame(columns=['Dataset', 'MAE', 'MSE', 'RMSE', 'MAPE'])
+
+# ... (Remaining code for data loading, preprocessing, and iterating through datasets)
+
+# Save the DataFrame with XGBoost model metrics to an Excel file
+
+excel_file_path_xgb = '/content/drive/MyDrive/Barrameda\'s Group/Datasets/Source
+
+3/XGBoost_Model_Metrics_Results.xlsx'
+
+all_metrics_df_xgb.to_excel(excel_file_path_xgb, index=False)
